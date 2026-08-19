@@ -28,11 +28,14 @@
 README 由脚本生成、**禁止手工编辑**；列表数据在 `data/plugins/`，**一个插件一个 YAML 文件**。
 
 在 fork 出来的 awesome-dsh-plugin 仓库里**新建一个文件**：
-`data/plugins/Yang-wudi__dsh-kun-like-pet.yml`（文件名 = `<owner>__<repo>.yml`，必须与 url 完全一致），内容：
+`data/plugins/Yang-wudi__dsh-kun-like-pet--packages-kunpet-dsh.yml`
+（文件名 = `<owner>__<repo>--<子包路径>`；**必须指向声明了 `dsh.bundle` 的 package.json 所在路径**——
+我们的 manifest 在 `packages/kunpet-dsh/` 子包，所以 url/name 用 monorepo 子包形式，否则
+Submission gate 会报 "the root declares no dsh.bundle — would install nothing"），内容：
 
 ```yaml
-url: https://github.com/Yang-wudi/dsh-kun-like-pet
-name: Yang-wudi/dsh-kun-like-pet
+url: https://github.com/Yang-wudi/dsh-kun-like-pet/tree/main/packages/kunpet-dsh
+name: Yang-wudi/dsh-kun-like-pet#kunpet-dsh
 category: fun
 description:
   en: A Kun-Like desktop pet living in the corner of the DSH web UI; switches animations with agent state and plays a voice line on task completion.
@@ -47,6 +50,8 @@ description:
   `browser` `vision` `voice` `docs` `skill` `workflow` `git` `notify` `dev` `security`
   `remote` `market` `fun` —— 桌宠选 `fun`（或 `ui`）都算贴切，维护者会微调；
 - 参考现成条目（例如 `data/plugins/01Virex__dsh-status-rotator.yml`）对照格式。
+- ⚠️ Submission gate 还会检查**插件仓库在 GitHub 的创建时间 ≥ 1 天**（不是本地首次提交时间）——
+  新仓库要等满 24h 再触发 CI，官方说明"重提不受影响"。
 
 ## 然后重新生成两个 README（必须，与 YAML 一起提交）
 
