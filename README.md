@@ -37,7 +37,7 @@
 1. 克隆本仓库：
 
    ```bash
-   git clone https://github.com/liyupi/dsh-kun-like-pet.git
+   git clone https://github.com/Yang-wudi/dsh-kun-like-pet.git
    ```
 
 2. 修改 `src/host.js` 顶部 `CONFIG` 中的素材路径：
@@ -93,7 +93,7 @@
 
 插件包是自包含的（`packages/kunpet-dsh/` 内含 `lib/`、`client/`、`assets/`），三种分享方式任选：
 
-- **方式 A · GitHub 仓库（推荐）**：把本仓库推送到 GitHub，别人只需：
+- **方式 A · GitHub 仓库**：把本仓库推送到 GitHub，别人只需：
 
   ```bash
   git clone <你的仓库地址>
@@ -101,14 +101,16 @@
   # 重启 DSH
   ```
 
-- **方式 B · 发布到 npm**：在 `packages/kunpet-dsh/` 目录执行 `npm publish`，别人直接按包名安装：
+- **方式 B · npm（✅ 已发布，最省事）**：`kunpet-dsh` 已发布到 [npm](https://www.npmjs.com/package/kunpet-dsh)，别人一行安装：
 
   ```bash
   dsh plugin --profile web add kunpet-dsh
   # 重启 DSH
   ```
 
-- **方式 C · DSH 插件市场**：配合 [dshmarket](https://dshmarket.com) 上架（先发布到 npm，再在市场注册），别人可以在 Web 界面里一键安装。
+  （国内网络下 npm 默认走 npmmirror 镜像，npmjs 发布后几分钟内自动同步。）
+
+- **方式 C · DSH 插件市场**：配合 [dshmarket](https://dshmarket.com) 上架（npm 包已就绪，在市场注册即可），别人可以在 Web 界面里一键安装。
 
 > ⚠️ **版权提醒**：`assets/voice.mp3` 为含公众人物声音的梗语音片段、`spritesheet.webp` 为粉丝二创像素形象，**仅供个人学习交流**。公开发布（npm/市场）等于分发这些素材，请先自行评估版权风险，或换成自己的素材（在 profile 的 `cordis.patch.yml` 给 kunpet-dsh 行加 `config.spritePath`/`config.voicePath` 覆盖，或改 `packages/kunpet-dsh/lib/index.js` 的 `DEFAULTS`）。
 
