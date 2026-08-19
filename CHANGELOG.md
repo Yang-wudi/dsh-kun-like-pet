@@ -1,6 +1,19 @@
 # 更新日志
 
-本插件最初以 DSH 动态插件形式（`cordis_define`）迭代开发，历经 5 个版本；v6 起同时提供正式 profile 插件包：
+本插件最初以 DSH 动态插件形式（`cordis_define`）迭代开发，历经 5 个版本；v6 起同时提供正式 profile 插件包并发布到 npm：
+
+## v6.2（1.0.1 → 1.0.2）📦 npm 包完善
+
+- 包内新增 `README.md`（npm 页面文档）与 `LICENSE`（保留上游 MIT 署名 + fork 改动声明）。
+- `package.json` 增加 `author`（Yang-Wudi）、`contributors`（liyupi）、`repository`（指向派生仓库）、`publishConfig`（固定发布到官方 registry）。
+- 根 README/包 README 补充「来源与致谢」：声明派生自 liyupi/dsh-kun-like-pet。
+- 整理 dshmarket 上架文档（`docs/dshmarket-submission.md`）：条目为 `data/plugins/<owner>__<repo>.yml` YAML 格式，附硬性要求清单与 README 重生成步骤。
+
+## v6.1（1.0.0）🔧 自包含可分享化
+
+- 素材（精灵图 + 完成音）内嵌进包（`packages/kunpet-dsh/assets/`），`lib/index.js` 用 `new URL(..., import.meta.url)` 相对解析——**不再依赖任何本机绝对路径**。
+- 播放命令按平台自动选择：Windows MCI/winmm、macOS `afplay`、Linux `ffplay`。
+- 发布到 npm（`kunpet-dsh`），别人一条命令安装：`dsh plugin --profile web add kunpet-dsh`。
 
 ## v6（正式 profile 插件包）📦 重启仍在、所有会话共享
 
