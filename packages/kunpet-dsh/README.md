@@ -5,6 +5,8 @@
 
 A Kun-Like desktop pet for DeepSeek Harness: lives in the bottom-right corner of the Web UI, reacts to agent activity, and plays a voice line when a task completes.
 
+> 🙏 This package is a **derivative of [liyupi/dsh-kun-like-pet](https://github.com/liyupi/dsh-kun-like-pet)** (original author liyupi, MIT). It repackages the pet as a self-contained DSH profile plugin and fixes Windows MP3 playback. Source: [github.com/Yang-wudi/dsh-kun-like-pet](https://github.com/Yang-wudi/dsh-kun-like-pet).
+
 ## ✨ Features
 
 - **9 种状态动画**：完全沿用 Codex 桌宠精灵图契约（8 列 × 9 行、每格 192×208），素材零重绘

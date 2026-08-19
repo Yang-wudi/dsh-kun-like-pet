@@ -15,6 +15,16 @@
 - **可互动**：拖动桌宠到处跑（跑步动画方向跟随），点击它会挥手打招呼
 - **内置调试工具**：`kun_pet_debug` 可随时查看状态机内部计数与轮询健康度
 
+## 🙏 来源与致谢
+
+本仓库是 [liyupi/dsh-kun-like-pet](https://github.com/liyupi/dsh-kun-like-pet)（原作者 liyupi）的**派生仓库**：原项目以 DSH 动态插件（`cordis_define`）形式开发迭代（v1–v5）。本仓库在此基础上：
+
+- 将其升级为**正式 profile 插件包**（`packages/kunpet-dsh`）：重启仍在、所有会话共享，无需 cordis 会话与授权；
+- 修复 Windows 完成音播放（`System.Media.SoundPlayer` 不支持 MP3，改用内置 MCI/winmm）；
+- 修正素材路径并使其自包含，发布到 npm（`kunpet-dsh`）。
+
+遵循 [MIT License](LICENSE)，代码版权归原作者 liyupi，派生改动版权归本仓库维护者（见 LICENSE 末尾的附加声明）。
+
 ## 🎮 状态 → 动作映射
 
 | Agent 工作状态 | 桌宠动作 | 气泡文案 |

@@ -41,5 +41,12 @@
     "desktop-pet",
     "桌宠"
   ],
-  "license": "MIT"
+  "license": "MIT",
+  "author": "Yang-Wudi",
+  "contributors": [
+    {
+      "name": "liyupi",
+      "url": "https://github.com/liyupi"
+    }
+  ]
 }
