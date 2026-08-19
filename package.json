@@ -12,10 +12,16 @@
     "桌宠"
   ],
   "license": "MIT",
-  "author": "liyupi",
+  "author": "Yang-Wudi",
+  "contributors": [
+    {
+      "name": "liyupi",
+      "url": "https://github.com/liyupi"
+    }
+  ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/liyupi/dsh-kun-like-pet.git"
+    "url": "git+https://github.com/Yang-wudi/dsh-kun-like-pet.git"
   },
   "files": [
     "src",
@@ -26,6 +32,8 @@
     "kunpet.package.json"
   ],
   "scripts": {
-    "test": "node scripts/validate.mjs"
+    "test": "node scripts/validate.mjs",
+    "validate": "node scripts/validate.mjs",
+    "smoke": "node packages/kunpet-dsh/scripts/mount-smoke.mjs"
   }
 }
