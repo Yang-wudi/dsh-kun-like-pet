@@ -1,6 +1,7 @@
 // Kun Like 桌宠 · 仓库完整性校验
 // 用法：node scripts/validate.mjs
-// 检查：素材存在且格式正确、插件源码结构正确、精灵图尺寸符合 8×9 契约
+// 检查：素材存在且格式正确、插件源码结构正确、精灵图尺寸符合 8×9 契约、
+//       profile 插件包（packages/kunpet-dsh）结构完整且自包含
 import { readFileSync, existsSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -54,6 +55,46 @@ for (const [name, mustContain] of [
     }
   }
 }
+
+// 3. profile 插件包（packages/kunpet-dsh）：结构完整且自包含
+const pkgDir = join(root, 'packages', 'kunpet-dsh')
+const pkgJsonPath = join(pkgDir, 'package.json')
+ok(existsSync(pkgJsonPath), 'packages/kunpet-dsh/package.json 存在')
+if (existsSync(pkgJsonPath)) {
+  const pkg = JSON.parse(readFileSync(pkgJsonPath, 'utf8'))
+  ok(pkg.dsh?.bundle?.patch === './cordis.patch.yml', 'package.json 声明 dsh.bundle.patch（可安装）')
+  ok(pkg.dsh?.client?.platform === 'web', 'package.json 声明 dsh.client.platform = web')
+  ok(typeof pkg.exports?.['./client'] === 'string', 'package.json 导出 ./client 客户端产物')
+  ok(pkg.publishConfig?.registry === 'https://registry.npmjs.org', 'package.json 配置 publishConfig 发布到官方 registry')
+  ok(pkg.version === '1.0.2', `package.json 版本与 npm 发布同步（${pkg.version}）`)
+}
+
+for (const [rel, mustContain] of [
+  ['lib/index.js', ['export function apply(ctx', "ctx.inject(['webServer'", "'/kun-pet/state'", 'kun_pet_debug', 'danger-full-access']],
+  ['client/client.js', ['__ModuleLoader__.load', "id: 'kunpet-dsh'", 'shell.overlay', 'require(\'react\')']],
+  ['cordis.patch.yml', ['kunpet-dsh']],
+]) {
+  const p = join(pkgDir, rel)
+  ok(existsSync(p), `packages/kunpet-dsh/${rel} 存在`)
+  if (existsSync(p)) {
+    const src = readFileSync(p, 'utf-8')
+    for (const token of mustContain) {
+      ok(src.includes(token), `packages/kunpet-dsh/${rel} 包含 ${token}`)
+    }
+  }
+}
+
+for (const [rel, label] of [
+  ['assets/spritesheet.webp', '精灵图'],
+  ['assets/voice.mp3', '完成音'],
+]) {
+  const p = join(pkgDir, rel)
+  ok(existsSync(p) && readFileSync(p).length > 0, `packages/kunpet-dsh/${rel}（${label}）存在且非空`)
+}
+
+// 自包含：lib/index.js 不得硬编码本机绝对路径（D:/ 或 C:\）
+const hostSrc = existsSync(join(pkgDir, 'lib', 'index.js')) ? readFileSync(join(pkgDir, 'lib', 'index.js'), 'utf-8') : ''
+ok(!/D:\/|C:\\\\|C:\//.test(hostSrc), 'lib/index.js 无硬编码绝对路径（素材自包含）')
 
 console.log(failed === 0 ? '\n✅ 校验通过' : `\n❌ ${failed} 项校验失败`)
 process.exit(failed === 0 ? 0 : 1)
