@@ -1,0 +1,5 @@
+# kunpet-dsh bundle patch: mount the Kun Like desktop-pet plugin (host half)
+# on the profile root, so one instance serves every session in the process.
+- insert:
+    - id: kun-pet
+      name: 'kunpet-dsh'

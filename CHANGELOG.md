@@ -1,8 +1,19 @@
 # 更新日志
 
-本插件最初以 DSH 动态插件形式（`cordis_define`）迭代开发，历经 5 个版本：
+本插件最初以 DSH 动态插件形式（`cordis_define`）迭代开发，历经 5 个版本；v6 起同时提供正式 profile 插件包：
 
-## v5（系统级完成音）— 当前版本 ✅
+## v6（正式 profile 插件包）📦 重启仍在、所有会话共享
+
+- 新增 `packages/kunpet-dsh`：以 **profile 插件** 形式挂载到 web profile（`dsh.profile.bundles` + `dsh.bundle.patch`），由 loader 在宿主组合中装载。
+- **重启仍在**：插件随 profile 组合在 DSH 启动时挂载，不再依赖会话内 `cordis_define`/`cordis_run`，无需授权、无需每次重启重装。
+- **所有会话共享**：host 半挂在 host 层，能观察组合下所有 Agent（"enclosing scope observes every descendant"）；client 半进浏览器启动图（`window.__DSH_BOOT__`），每个页面右下角都有桌宠；任何会话完成任务都会触发系统级「你干嘛~哎哟」。
+- 关键改造：
+  - host 半从动态沙箱（`harness.handle`/`harness.defineTool`）改为正式 ESM 插件（`ctx.tools.register` + `webServer` 路由），状态同步由 `host.call` RPC 改为 HTTP 轮询 `/kun-pet/state`。
+  - client 半改为手写 lazy-CJS 协议（`window.__ModuleLoader__.load`），零构建、仅 `require('react')`，CSS 用 `<style>` 注入。
+  - 素材用 `readFileSync` 启动时加载；配置仍集中在 `lib/index.js` 顶部 `DEFAULTS`。
+- 安装：`dsh plugin --profile web add -w <仓库>/packages/kunpet-dsh`（详情见 README「方式三」）。
+
+## v5（系统级完成音）— 动态插件当前版本 ✅
 
 - 任务完成的声音改为由 **DSH 宿主进程** 直接调用系统命令播放（macOS `afplay`），与浏览器窗口无关：任何窗口、任何会话的任务完成，本机都会响起「你干嘛~哎哟」。
 - 庆祝条件放宽为「任意 Agent 干净结束回合（running→idle），且无其他 Agent 在跑、无等待用户输入」。

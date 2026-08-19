@@ -30,7 +30,7 @@
 
 ## 🚀 安装
 
-### 方式一：DSH 动态插件（推荐，已实测）
+### 方式一：DSH 动态插件（已实测，会话级）
 
 桌宠以 **DSH 动态插件** 形式开发并运行验证（`cordis_define`）。在 DSH 会话里让 Agent 执行，或手动调用 `cordis_define` 工具：
 
@@ -70,19 +70,61 @@
 
 4. 用 `cordis_run` 激活，Web 界面右下角即出现桌宠。
 
+### 方式三：正式 profile 插件包（推荐 ✅ 重启仍在、所有会话共享）
+
+把桌宠做成 **profile 插件** 挂载到 web profile：DSH 重启后自动生效，**每个会话页面**右下角都有桌宠，任何会话完成任务都会响「你干嘛~哎哟」。无需 cordis 会话、无需授权。插件包**自包含**（素材内嵌 + 播放命令按平台自动选择），安装时无需改任何路径。
+
+1. 安装进 web profile（会写入 `~/.dsh/profiles/web/package.json` 的 dependencies + `dsh.profile.bundles`）：
+
+   ```bash
+   dsh plugin --profile web add -w <本仓库>/packages/kunpet-dsh
+   ```
+
+   （Windows 上跨盘符时不要用 `file:` 前缀，直接传目录路径即可。）
+2. 重启 DSH，桌宠即出现在所有页面右下角。
+
+验证：`curl http://127.0.0.1:3080/kun-pet/state` 应返回 JSON（`mode`/`spriteUrl`/`lastPlayError`…）；`/kun-pet/spritesheet.webp` 返回 `image/webp`。
+
+卸载：`dsh plugin --profile web remove kunpet-dsh`，并从 `~/.dsh/profiles/web/package.json` 的 `dsh.profile.bundles` 移除 `kunpet-dsh`，再重启。
+
+调试：`node packages/kunpet-dsh/scripts/mount-smoke.mjs` 可在不重启的情况下验证插件能完整挂载（素材加载 + 路由 + 工具注册）。
+
+### 📤 分享给其他人
+
+插件包是自包含的（`packages/kunpet-dsh/` 内含 `lib/`、`client/`、`assets/`），三种分享方式任选：
+
+- **方式 A · GitHub 仓库（推荐）**：把本仓库推送到 GitHub，别人只需：
+
+  ```bash
+  git clone <你的仓库地址>
+  dsh plugin --profile web add -w <克隆路径>/packages/kunpet-dsh
+  # 重启 DSH
+  ```
+
+- **方式 B · 发布到 npm**：在 `packages/kunpet-dsh/` 目录执行 `npm publish`，别人直接按包名安装：
+
+  ```bash
+  dsh plugin --profile web add kunpet-dsh
+  # 重启 DSH
+  ```
+
+- **方式 C · DSH 插件市场**：配合 [dshmarket](https://dshmarket.com) 上架（先发布到 npm，再在市场注册），别人可以在 Web 界面里一键安装。
+
+> ⚠️ **版权提醒**：`assets/voice.mp3` 为含公众人物声音的梗语音片段、`spritesheet.webp` 为粉丝二创像素形象，**仅供个人学习交流**。公开发布（npm/市场）等于分发这些素材，请先自行评估版权风险，或换成自己的素材（在 profile 的 `cordis.patch.yml` 给 kunpet-dsh 行加 `config.spritePath`/`config.voicePath` 覆盖，或改 `packages/kunpet-dsh/lib/index.js` 的 `DEFAULTS`）。
+
 ### 方式二：直接预览动画（无需 DSH）
 
 打开 `demo/index.html`（建议起个静态服务器，如 `npx serve .` 或 `python3 -m http.server`），即可查看全部 9 种动画并拖动互动。
 
 ## ⚙️ 配置
 
-所有可调项集中在 `src/host.js` 顶部 `CONFIG`：
+- 动态插件（`src/host.js` 顶部 `CONFIG`）与 profile 插件（`packages/kunpet-dsh/lib/index.js` 顶部 `DEFAULTS`）各有一份配置，结构相同：
 
 | 配置 | 默认值 | 说明 |
 | --- | --- | --- |
-| `spritePath` | `~/.codex/pets/kun-like/spritesheet.webp` | 精灵图路径 |
-| `voicePath` | `~/Downloads/你干嘛哎呦.mp3` | 完成音路径 |
-| `playCommand` | `afplay '…'` | 系统级播放命令（Windows：`powershell -c (New-Object Media.SoundPlayer '…').PlaySync()`；Linux：`ffplay -nodisp -autoexit '…'`） |
+| `spritePath` | profile 插件：包内 `assets/spritesheet.webp`（自包含） | 精灵图路径 |
+| `voicePath` | profile 插件：包内 `assets/voice.mp3`（自包含） | 完成音路径 |
+| `playCommand` | 按平台自动选择（macOS `afplay`；Linux `ffplay`；Windows 内置 MCI/winmm 播 MP3） | 系统级播放命令（Windows 注意：`System.Media.SoundPlayer` 只支持 WAV 不支持 MP3） |
 | `pollMs` | `500` | Agent 状态轮询间隔 |
 | `celebrateMs` | `4800` | 庆祝动画时长 |
 | `failedMs` | `2600` | 失败动画时长 |
@@ -92,8 +134,13 @@
 ```
 dsh-kun-like-pet/
 ├── src/
-│   ├── host.js        # 插件 Host 半：状态机、素材路由、系统音、pet-state RPC、kun_pet_debug 工具
-│   └── client.js      # 插件 Client 半：shell.overlay 注入、9 种动画渲染、拖动/点击互动
+│   ├── host.js        # 动态插件 Host 半：状态机、素材路由、系统音、pet-state RPC、kun_pet_debug 工具
+│   └── client.js      # 动态插件 Client 半：shell.overlay 注入、9 种动画渲染、拖动/点击互动
+├── packages/kunpet-dsh/   # 正式 profile 插件包（重启仍在、所有会话共享）
+│   ├── lib/index.js       #   Host 半：素材加载、/kun-pet/* 路由、状态机、系统音、kun_pet_debug
+│   ├── client/client.js   #   Client 半：手写 lazy-CJS 协议，渲染桌宠（零构建）
+│   ├── cordis.patch.yml   #   bundle patch：insert { id: kun-pet, name: kunpet-dsh }
+│   └── scripts/mount-smoke.mjs  # 不重启即可验证挂载的冒烟脚本
 ├── assets/
 │   ├── spritesheet.webp   # 8×9 精灵图（1536×1872，Codex 桌宠契约）
 │   └── voice.mp3          # 「你干嘛~哎哟」完成音
@@ -104,8 +151,8 @@ dsh-kun-like-pet/
 ├── scripts/
 │   ├── build-kunpet-package.mjs  # 生成 cordis_define 安装载荷
 │   └── validate.mjs              # 仓库完整性校验
-├── CHANGELOG.md       # v1 → v5 迭代记录（含事件隔离根因分析）
-└── kunpet.package.json    # 由 build 脚本生成的一键安装载荷
+├── CHANGELOG.md       # v1 → v6 迭代记录（含事件隔离根因分析、profile 插件化）
+└── kunpet.package.json    # 由 build 脚本生成的一键安装载荷（动态插件用）
 ```
 
 校验：`node scripts/validate.mjs`
@@ -113,7 +160,7 @@ dsh-kun-like-pet/
 ## ❓ 常见问题
 
 **为什么桌宠只在某一个窗口里？**
-动态插件是会话级绑定：桌宠界面只注入到激活它的会话页面。但 v5 起完成音由宿主进程系统级播放，**任何窗口、任何会话完成任务本机都会响**。若要让桌宠形象出现在所有窗口，需将插件升级为宿主组合级插件包（欢迎 PR）。
+动态插件是会话级绑定：桌宠界面只注入到激活它的会话页面。完成音自 v5 起由宿主进程系统级播放，任何窗口/会话完成任务本机都会响。**要让桌宠形象出现在所有窗口、且重启仍在**，用[方式三](#方式三正式-profile-插件包推荐--重启仍在所有会话共享)安装正式 profile 插件包即可。
 
 **为什么不用事件监听而要轮询？**
 开发过程中用 `internal/dispatch` 探针实证发现：部分部署里 `agent/status`、`agent/turn-stopping` 等 Agent 状态事件不流经动态插件所在总线（831 次事件观测中 status 类事件为 0），事件监听永远等不到「任务完成」。轮询 `agents` 服务是最可靠的跨部署方案。详见 [CHANGELOG](CHANGELOG.md) v3/v4。

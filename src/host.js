@@ -14,11 +14,24 @@
 // ===== 配置区（按需修改） =====
 const CONFIG = {
   // 精灵图路径（8 列 × 9 行、每格 192×208 的 WebP）
-  spritePath: '/Users/yupi/.codex/pets/kun-like/spritesheet.webp',
+  // spritePath: '/Users/yupi/.codex/pets/kun-like/spritesheet.webp',
+  spritePath: 'D:/code/dsh-kun-like-pet/dsh-kun-like-pet/assets/spritesheet.webp',
   // 任务完成提示音路径（mp3）
-  voicePath: '/Users/yupi/Downloads/你干嘛哎呦.mp3',
-  // 宿主进程系统级播放命令（macOS 用 afplay；Windows 可用 powershell -c (New-Object Media.SoundPlayer '...').PlaySync()；Linux 可用 ffplay -nodisp -autoexit）
-  playCommand: (path) => "afplay '" + path.replace(/'/g, "'\\''") + "'",
+  // voicePath: '/Users/yupi/Downloads/你干嘛哎呦.mp3',
+  voicePath:  'D:/code/dsh-kun-like-pet/dsh-kun-like-pet/assets/voice.mp3',
+  // 宿主进程系统级播放命令（macOS 用 afplay；Linux 用 ffplay -nodisp -autoexit）。
+  // Windows 注意：System.Media.SoundPlayer 只支持 WAV 不支持 MP3，必须用 MCI (winmm.dll)：
+  // playCommand: (path) => "afplay '" + path.replace(/'/g, "'\\''") + "'",
+  playCommand: (path) => {
+    const safe = path.replace(/\//g, '\\').replace(/'/g, "''")
+    const open = 'open "' + safe + '" type mpegvideo alias kunpet'
+    return [
+      "Add-Type -TypeDefinition 'using System.Runtime.InteropServices;using System.Text;public class KunPetMci{[DllImport(\"winmm.dll\",CharSet=CharSet.Unicode)]public static extern int mciSendString(string c,StringBuilder r,int n,System.IntPtr h);}';",
+      "[KunPetMci]::mciSendString('" + open + "',$null,0,[IntPtr]::Zero)|Out-Null;",
+      "[KunPetMci]::mciSendString('play kunpet wait',$null,0,[IntPtr]::Zero)|Out-Null;",
+      "[KunPetMci]::mciSendString('close kunpet',$null,0,[IntPtr]::Zero)|Out-Null;",
+    ].join('')
+  },
   // 状态轮询间隔（毫秒）
   pollMs: 500,
   // 庆祝动画持续时长（毫秒）
