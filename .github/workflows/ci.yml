@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: 语法检查（动态插件 + profile 插件包）
+        run: |
+          node --check src/host.js
+          node --check src/client.js
+          node --check packages/kunpet-dsh/lib/index.js
+          node --check packages/kunpet-dsh/client/client.js
+
+      - name: 仓库完整性校验（素材/结构/自包含/版本同步）
+        run: node scripts/validate.mjs
+
+      - name: 生成包一致性（kunpet.package.json 与 src 同步）
+        run: |
+          node scripts/build-kunpet-package.mjs /tmp/kunpet.package.json
+          node -e "const a=require('fs').readFileSync('kunpet.package.json','utf8');const b=require('fs').readFileSync('/tmp/kunpet.package.json','utf8');if(a!==b){console.error('kunpet.package.json 与 src 不一致，请重新运行 build-kunpet-package.mjs');process.exit(1)}else{console.log('kunpet.package.json 与 src 一致')}"
